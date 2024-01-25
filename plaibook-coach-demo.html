@@ -1,0 +1,269 @@
+<html>
+<head>
+  <style>
+body {
+    margin: 0px;
+}
+table {
+  font-family: arial, sans-serif;
+  border: 0px;
+  padding: 0px;
+  margin: 0px;
+  width: 100%;
+  height: 100%;
+  border-collapse: collapse;
+}
+
+td, th {
+  vertical-align: top;
+  margin: 0px;
+  padding: 0px;
+  border: none;
+}
+
+#response {
+  border: 1px solid black;
+}
+
+#divActivity {
+    margin-top: 8px;
+    text-align: center;
+}
+</style>
+
+<!-- xAPI scripts -->
+<script type="text/javascript" src="./js/jimsxapiwrapper.js"></script>
+<script type="text/javascript" src="./js/cryptojs_v3.1.2.js"></script>
+<script type="text/javascript" src="./js/xAPIWrapper.js"></script>
+
+   <!-- The following script handles the local details to send the xAPI Statement -->
+    <script>
+    function send_statement(item, response, success){
+        var conf = {
+             "endpoint" : "https://lrs.adlnet.gov/xapi/",
+             "auth" : "Basic " + toBase64("xapi-tools:xapi-tools")
+             };
+        ADL.XAPIWrapper.changeConfig(conf);
+ 
+        // Set values and set up xAPI Statement in the right format
+        var actorName = "https://example.com/users/user-v1:1abcb33beeb811dca15f0ac3e47b887b"; // Anonomous hashed id
+        //var actorMail = "mailto:jdg@example.com";
+        var actorOpenId = "https://example.com/users/user-v1:1abcb33beeb811dca15f0ac3e47b887b";
+        var verbId = "http://adlnet.gov/expapi/verbs/answered";
+        var verbDisplay =  "answered";
+        var objectId = "https://example.com/activity/dca15f0ac3e47b88d91abcb33beeb811_" + item;
+        var objectName = "Fraction item dca15f0ac3e47b88d91abcb33beeb811_" + item;
+        var resultResponseValue = response;
+        let objectDescription = "Example xAPI instrumented button.";
+        var resultSuccessValue = success;
+        let agent = navigator.userAgent;
+        let contextActivity = "https://example.com/activity/dca15f0ac3e47b88d91abcb33beeb811";
+        let contextActivityName = "Algebra problem with one variable as denominator and fraction on the right.";
+       // We’ll fill in other defaults behind the scenes...
+       // extensions_user-agent, extensions_aligned_to, platform, registration
+        var statement = setupSimpleXAPI(actorName, actorOpenId, verbId, verbDisplay, objectId, objectName, objectDescription, resultResponseValue, resultSuccessValue, contextActivity, contextActivityName);
+ 
+        // Dispatch the statement to the LRS
+        var result = ADL.XAPIWrapper.sendStatement(statement);
+    }
+    </script>
+	
+<script>
+// Global variables
+//Variables use in item content
+const feedbackObjArray = [] ;
+var numHints = 0;
+var currentHint = 0; //hint count
+var responseValue = ""; //convenience for last learner response
+const hintRequestTimeArray = []; //Used for gaming detection simulation
+
+const itemArray = ["item001.html","item002.html","item003.html"]; //Array of assessment items in HTML5 template to import
+var currentItemArrayPos=0;
+
+//Log hint event and simulate gaming detector (need to make this just an xAPI statement logged and let the detector be separate)
+function hintEvent() {
+    const d = new Date();
+    t = d.getTime();
+    hintRequestTimeArray.push(t);
+    if (hintRequestTimeArray.length > 1) {
+      var timeDif = hintRequestTimeArray[hintRequestTimeArray.length-1] - hintRequestTimeArray[hintRequestTimeArray.length-2];
+      if (timeDif < 10000) {
+          gamingInference=100;
+      }
+      updateDetector(2, gamingInference);
+    }
+    //Add code to log hint
+    
+}
+
+function nextItem() {
+    feedbackObjArray.splice(0, feedbackObjArray.length); // Clear out the feedback Array before loading the next item
+    if (currentItemArrayPos<itemArray.length-1) {
+        currentItemArrayPos++
+    } else {
+        currentItemArrayPos = 0;
+    }
+    document.getElementById("divActivity").innerHTML = document.getElementById(itemArray[currentItemArrayPos]).innerHTML;
+    switch(currentItemArrayPos) {
+        case 0:
+        //Initialize variables specific to item 001
+          feedbackObjArray.push({match: "28/5", matchtype:"exact", feedback:"Correct! &nbsp;&nbsp; <button onclick='nextItem()'>Keep Going</button>"});
+          feedbackObjArray.push({match:".", matchtype:"substring", feedback:"Enter the answer as a fraction rather than a decimal number."});
+          numHints = 5; //Number of hints
+          currentHint = 0; //hint count
+          break;
+        case 1:
+          //Initialize variables specific to this item
+          feedbackObjArray.push({match: "40/3", matchtype:"exact", feedback:"Correct! &nbsp;&nbsp; <button onclick='nextItem()'>Keep Going</button>"});
+          feedbackObjArray.push({match:".", matchtype:"substring", feedback:"Enter the answer as a fraction rather than a decimal number."});
+          numHints = 5;
+          currentHint = 0; //hint count
+          break;
+        case 2:
+          //Initialize variables specific to this item
+          feedbackObjArray.push({match: "36/5", matchtype:"exact", feedback:"Correct! &nbsp;&nbsp; <button onclick='nextItem()'>Keep Going</button>"});
+          feedbackObjArray.push({match:".", matchtype:"substring", feedback:"Enter the answer as a fraction rather than a decimal number."});
+          numHints = 5;
+          currentHint = 0; //hint count
+          break;
+    }
+}
+    //Log response and check answer (need to define best practices, e.g. type of checking: string match, ignore case, substring match, math equivalent match -- enter as fraction or decimal, etc.)
+    function check() {
+      var success = false; //Default
+      var responseValueText = document.getElementById("response").value;
+      document.getElementById("feedback").innerHTML="Try again."; // Default feedback
+      for (let i = 0; i < feedbackObjArray.length; i++) {
+          if (feedbackObjArray[i].match == responseValueText) {
+              document.getElementById("feedback").innerHTML = feedbackObjArray[i].feedback;
+              if (i==0) { success = true; } // First item in array is the correct answer
+          }
+        }
+      //SEND the xAPI Statement
+      var item = "00" + currentItemArrayPos;
+	    console.log("Success: " + success);
+      send_statement(item, responseValueText, success);
+    }
+
+    function nextHint() {
+        currentHint++
+        var hintObjectName = "hint" + currentHint;
+        document.getElementById(hintObjectName).style.visibility = "visible";
+        hintEvent();
+      }
+
+</script>
+</head>
+<body onload="nextItem()">
+
+    <table id="main">
+        <tr id="toprow">
+            <td id="tl" style="background-image: url('./images/tl.png'); width: 18px; height: 40px;"></td>
+            <td id="t" style="background-image: url('./images/t.png');vertical-align: middle;"><img src="images/menubutton.png" alt="Menu button"><img src="images/plaibookcoachtm.png" alt="Plai Book Coach title"><img src="images/personicon.png" style="float: right;" alt="login and settings icon"></td>
+            <td id="tr" style="background-image: url('./images/tr.png'); width: 18px;"></td>
+        </tr>
+        <tr id="middlerow">
+            <td id="l" style="background-image: url('./images/l.png'); width: 18px;"></td>
+            <td id="m">
+                <!-- MAIN CONTENT -->
+
+                <div id="divActivity"><button id="nextitembutton">Practice</button></div>
+                
+                <div id="item001.html" style="visibility: hidden">
+                    <!-- The learning activity or item is enclosed in a div tag with the id "learningActivity" -->
+                    <div id="learningActivity" itemscope itemtype="http://schema.org/CreativeWork">
+                    <!-- Template CSS -->
+                    <style>
+                    i, #variable {color: blue;}
+                    span.frac {display: inline-block; text-align: center; vertical-align: middle;}
+                    span.frac > sup, span.frac > sub {display: block; font: inherit; padding: 0 0.3em;}
+                    span.frac > sup {border-bottom: 0.08em solid;}
+                    span.frac > span {display: none;}
+                    #hintTable {border: 1px solid black; font: 12px Arial, sans-serif; width: 300px;}
+                    #hintCell, #hintLabel {padding: 8px;}
+                    #hintLabel {padding: 8px; width: 20px; background-color: #dddddd; text-align:center;}
+                    #hint1, #hint2, #hint3, #hint4, #hint5, #hint6, #div-correct-feedback, #div-decimal-feedback {visibility: hidden;}
+                    #feedback {color: blue; background-color: white; text-align: left; padding: 8px;}
+                    </style>
+
+                    <!-- METADATA for the activity/item -->
+                    <!--The standard html5 learning activity includes LRMI / Schema.org metadata describing the activity, context, and alignment (such as to competency definitions).-->
+                    <meta itemprop="name" content="" />
+                    <meta itemprop="publisher" content="Jim Goodell" />
+                    <meta itemprop="datePublished" content="October 4, 2006" />
+                    <meta itemprop="description" content="A mathematics formative assessment item with hints for practicing solving proportions" />
+                    <meta itemprop="url" href="" >
+                    <meta itemprop="learningResourceType" content="http://purl.org/dcx/lrmi-vocabs/learningResourceType/assessmentItem"/>
+                    <meta itemprop="interactivityType" content="http://purl.org/dcx/lrmi-vocabs/interactivityType/mixed" />
+                    <span rel="educationalAlignment" typeof="https://schema.org/AlignmentObject">
+                        <meta property="alignmentType" content="educationalSubject" />
+                        <meta property="educationalFramework" content="Massachusetts DOE Mathematics Framework" />
+                        <meta property="targetName" content""/>
+                        <meta property="targetUrl" href="https://www.doe.mass.edu/frameworks/search/Map.aspx?ST_CODE=Mathematics.7.RP.A.02.c&a=1" />
+                    </span>
+                    <span rel="educationalAlignment" typeof="https://schema.org/AlignmentObject">
+                        <meta property="alignmentType" content="educationalSubject" />
+                        <meta property="educationalFramework" content="Massachusetts DOE Mathematics Framework" />
+                        <meta property="targetName" content""/>
+                        <meta property="targetUrl" href="https://www.doe.mass.edu/frameworks/search/Map.aspx?ST_CODE=Mathematics.7.RP.A.02.c&a=1" />
+                    </span>
+                    <span rel="educationalAlignment" typeof="https://schema.org/AlignmentObject">
+                    <span itemprop="inDefinedTermSet"
+                                    itemscope
+                                    itemtype="https://schema.org/DefinedTermSet">
+                        <meta property="name" content="The National Curriculum for England" />
+                        <meta property="targetUrl" href="https://www.gov.uk/government/collections/national-curriculum" />
+                    </span>
+                    <meta property="alignmentType" content="educationalSubject" />
+                    <meta property="educationalFramework" content="The National Curriculum for England" />
+                    <meta property="targetName" content="Solve problems involving ratio relationships." />
+                    <meta property="targetUrl" href="http://example.org/MA/6AS/MD-3"/>
+                    </span>
+                    <!-- Not sure if the xAPI profile should be defined here, i.e. one profile for the entire activity, or to allow separate profiles and specify by event type. -->
+                    <meta itemprop="xapiprofile" content="http://profiles.usalearning.net/xapi/043b24b4-4389-435f-b052-805fd5563166/v/1"/>
+
+                    <!-- Presentation starts here -->
+                    <!--FIRST PART is the stimulus, i.e. what is presented ot  the learner. -->
+                    <!--The stimulus may include any number of response objects.-->
+                    <!--User response events (click, drag, enter a value, etc.) may trigger actions within the html block but MUST also logged via xAPI. -->
+                    <!--Events logged via xAPI must use an xAPI Profile that contextualizes the activity type and response type. -->
+                    <!--This activity is a formative assessment item. -->
+                    
+                    <!-- Stimulus Block -->
+                    <div id="divStimulus">
+                        <p>Solve for <i>r</i>.  (enter answer as a fraction)</p><p><span class="frac"><sup>4</sup><span>&frasl;</span><sub><i>r</i></sub></span>&nbsp;=&nbsp;<span class="frac"><sup>5</sup><span>&frasl;</span><sub>7</sub></span></p></p><p><i>r</i>&nbsp;=&nbsp;
+                        <!-- For convenience we give the input field the id 'response' to signal that it's where we'll get the xAPI response propeerty that we'll send with other result fields such as success, completion, duration  -->
+                        <input id="response" type="text"></input></p>
+                        <button id="checkResponseButton" onclick="check()">Check Answer</button><p>Stuck? <button id="hintButton" onclick="nextHint()">Get a hint</button>&nbsp;or&nbsp;<button>Watch a video</button></p>
+                    </div>
+                    <!-- End Stimulus Block -->
+                    
+                    <!-- Feedback Block -->
+                    <div id="feedback"></div>
+
+                    <!-- Hints Display Block -->
+                    <div id="divHints">
+                    <div id="hint1"><table id="hintTable"><tr><td id="hintLabel">Hint<br/> 1 <br/>of<br/>5</td><td id="hintCell">
+                        <p>Multiply both sides by <i>r</i>.</p><p><i>r</i>&nbsp;X&nbsp;<span class="frac"><sup>4</sup><span>&frasl;</span><sub><i>r</i></sub></span>&nbsp;=&nbsp;<span class="frac"><sup>5</sup><span>&frasl;</span><sub>7</sub></span>&nbsp;X&nbsp;<i>r</i></p>
+                        </td><td width="20px"><button onclick="nextHint()">Next hint</button></td></tr></table>
+                    </div>
+                    </div>
+
+                    </div>
+                    <!-- END Learning Activity block -->
+                </div>
+                
+                
+            </td>
+            <td id="r" style="background-image: url('./images/r.png'); width: 18px;"></td>
+        </tr>
+        <tr id="bottomrow">
+            <td id="bl" style="background-image: url('./images/bl.png'); width: 18px; height: 36px;"></td>
+            <td id="b" style="background-image: url('./images/b.png');"><img src="images/poweredbyinferabletm.png" alt="Powered by INFERable (tm)" style="float: right;margin-top: 6px;"></td>
+            <td id="br" style="background-image: url('./images/br.png'); width: 18px;"></td>
+        </tr>
+    </table>
+
+
+</body>
+</html>

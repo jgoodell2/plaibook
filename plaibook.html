@@ -1,0 +1,47 @@
+ <!DOCTYPE HTML>
+<html>
+<head>
+<link rel="stylesheet" href="css/plaibook.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="./js/plaibook.js"></script>
+</head>
+<body onLoad="default_lineup();" onclick="tempstatus('');">
+    <div id="buttonbar">
+        <div id="save_formation" class="button" onclick="saveFormation()">Save Formation</div>
+        <div id="new_play" class="button" onclick="newPlay()">New Play</div>
+        <div id="save_play_step" class="button" onclick="setPlayStep()">Save Step</div>
+        <div id="status" class="status">Play: <select id="playselect" onchange="selectPlay()"><option>---</option></select> | Play Step: <a href='javascript:stepBack()'>&lt;</a> 0 <a href='javascript:stepForward()'>&gt;</a> </div>
+        <div id="add_play_step" class="button" onclick="addPlayStep()">Add Step</div>
+        <div id="reset" class="button" onclick="reset()">Reset</div>
+        <div id="draw_vectors" class="button" onclick="drawVectors()">Draw Vectors</div>
+        <div id="animate" class="button" onclick="animatePlay()">Animate</div>
+        <div id="save" class="button" onclick="saveToCookie()">Save</div>
+        <div id="deleteAll" class="button" onclick="deleteData()">Delete All</div>
+    </div>
+    <div id="menu"><p onclick="togglePractice()">Practice</p><p onclick="toggleMaker()">Make Plays</p></div>
+    <canvas id="myCanvas" width="1000" height="1000"></canvas>
+    <div id="lineofscrimage"></div>
+    <div id="overlay">
+        <table id="overlay">
+            <tr id="toprow">
+                <td id="tl" style="background-image: url('./images/tl.png'); width: 18px; height: 40px;"></td>
+                <td id="t" style="background-image: url('./images/t.png');vertical-align: middle;"><img src="images/menubutton.png" onclick="toggleMenu()" alt="Menu button"><img src="images/plaibookcoachtm.png" alt="Plai Book Coach title"><img src="images/personicon.png" style="float: right;" alt="login and settings icon"></td>
+                <td id="tr" style="background-image: url('./images/tr.png'); width: 18px;"></td>
+            </tr>
+            <tr id="middlerow">
+                <td id="l" style="background-image: url('./images/l.png'); width: 18px;"></td>
+                <td id="playingfield">
+                    <!-- MAIN CONTENT -->
+                    
+            </td>
+            <td id="r" style="background-image: url('./images/r.png'); width: 18px;"></td>
+            </tr>
+            <tr id="bottomrow">
+            <td id="bl" style="background-image: url('./images/bl.png'); width: 18px; height: 36px;"></td>
+            <td id="b" style="background-image: url('./images/b.png');"><div id="tempstatus" class="tempstatus">Status:</div><img src="images/poweredbyinferabletm.png" alt="Powered by INFERable (tm)" style="float: right;margin-top: 6px;"></td>
+            <td id="br" style="background-image: url('./images/br.png'); width: 18px;"></td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>
