@@ -5,7 +5,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="./js/plaibook.js"></script>
 </head>
-<body onLoad="default_lineup();" onclick="tempstatus('');">
+<body onLoad="togglePractice();" onclick="tempstatus('');">
     <div id="buttonbar">
         <div id="save_formation" class="button" onclick="saveFormation()">Save Formation</div>
         <div id="new_play" class="button" onclick="newPlay()">New Play</div>
@@ -25,14 +25,20 @@
         <table id="overlay">
             <tr id="toprow">
                 <td id="tl" style="background-image: url('./images/tl.png'); width: 18px; height: 40px;"></td>
-                <td id="t" style="background-image: url('./images/t.png');vertical-align: middle;"><img src="images/menubutton.png" onclick="toggleMenu()" alt="Menu button"><img src="images/plaibookcoachtm.png" alt="Plai Book Coach title"><img src="images/personicon.png" style="float: right;" alt="login and settings icon"></td>
+                <td id="t" style="background-image: url('./images/t.png');vertical-align: middle;">
+                    <img src="images/menubutton.png" onclick="toggleMenu()" alt="Menu button"><img src="images/plaibookcoachtm.png" alt="Plai Book Coach title">
+                    <select class="positionSelect"><option>Right Wide Receiver</option></select></option></select><img src="images/personicon.png" style="float: right;" alt="login and settings icon"></td>
                 <td id="tr" style="background-image: url('./images/tr.png'); width: 18px;"></td>
             </tr>
             <tr id="middlerow">
                 <td id="l" style="background-image: url('./images/l.png'); width: 18px;"></td>
                 <td id="playingfield">
                     <!-- MAIN CONTENT -->
-                    
+                <div id="practiceitem">
+                    <p id="practiceitemprompt"></p><button type="button" id="nextButton" onclick="nextPracticeItem()">Next</button>
+                    <p></p>
+                    <img class="choicetileimg" id="choiceimage0" src="images/plays/PA_Fly.png" alt="A diagram of a football play." onclick="checkAnswer(this)"/><img class="choicetileimg" id="choiceimage1" src="images/plays/PA_Fly.png" alt="A diagram of a football play." onclick="checkAnswer(this)"/><img class="choicetileimg" id="choiceimage2" src="images/plays/PA_Fly.png" alt="A diagram of a football play." onclick="checkAnswer(this)"/><img class="choicetileimg" id="choiceimage3" src="images/plays/PA_Fly.png" alt="A diagram of a football play." onclick="checkAnswer(this)"/></div>
+                </div>
             </td>
             <td id="r" style="background-image: url('./images/r.png'); width: 18px;"></td>
             </tr>
@@ -42,6 +48,14 @@
             <td id="br" style="background-image: url('./images/br.png'); width: 18px;"></td>
             </tr>
         </table>
+    </div>
+    <div id="feedbackDiv">-------</div>
+    <div id="audioDiv">
+        <img id="muteButton" src="images/muted.png" onclick="toggleMute()"><!--User action control required for audio in Safari-->
+        <audio id="audio" muted>
+            <source src="audio/correct.mp3">
+            Your browser does not support the audio tag.
+        </audio>
     </div>
 </body>
 </html>

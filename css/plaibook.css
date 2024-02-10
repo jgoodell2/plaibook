@@ -64,10 +64,46 @@ div {font-family: Arial, Helvetica, sans-serif;font-size: medium;}
 }
 #buttonbar {
 	position:  absolute;
+	visibility: hidden;
 	margin-top: 40px;
 	margin-left: 18px;
 	z-index: 3;
 	width: 100%;
+}
+#feedbackDiv {
+	position:  absolute;
+    visibility: hidden;
+	z-index: 101;
+	bottom: 0px;
+	width: 100%;
+	height: 80px;
+	text-align: center;
+	font-weight: bold;
+	font-size: larger;
+	color: darkblue;
+	background: rgba(255,255,255,0.66); 
+}
+#muteButton {
+    width: 24px;
+	height: 24px;
+	opacity: 0.5;
+	margin-left: 290px;
+	margin-top: 12px;
+	top: 0px;
+}
+#nextButton {
+	position:  relative;
+	align-self: center;
+	visibility: hidden;
+	margin-left: 12px;
+	text-align: center;
+}
+#practiceitemprompt {
+	margin-left: 12px;
+}
+.choicetileimg {
+	width: 40%;
+	height: 40%;
 }
 .button { 
 	float: left;
@@ -115,6 +151,7 @@ div {font-family: Arial, Helvetica, sans-serif;font-size: medium;}
 }
 #lineofscrimage {
 	position: absolute;
+	visibility: hidden;
 	z-index: 0;
 	top: 300px;
 	width: 95%;
