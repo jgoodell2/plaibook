@@ -15,21 +15,131 @@ var current_formation_name = ""; //The name of the current formation
 var current_play_name = "";
 var current_play_step = 0;
 var current_play = play;
+/**  Practice item globals */
+const playerPositions = [{id: "LWR", name: "Left Wide Receiver", unit: "O"}, {id: "LT", name: "Left Tackle", unit: "O"}, {id: "LG", name: "Left Guard",  unit: "O"}, {id: "C", name: "Center", unit: "O"}, {id: "RG", name: "Right Guard", unit: "O"}, {id: "RT", name: "Right Tackle", unit: "O"}, {id: "TE", name: "Tight End", unit: "O"}, {id: "RWR", name: "Right Wide Receiver", unit: "O"}, {id: "QB", name: "Quarterback", unit: "O"}, {id: "FB", name: "Fullback", unit: "O"}, {id: "HB", name: "Halfback", unit: "O"}];
+const playerPlayTiles = [{positionId: "RWR", play: "Flood"},{positionId: "RWR", play: "PA_Corner"},{positionId: "RWR", play: "PA_Fly"},{positionId: "RWR", play: "Out_and_Up"},{positionId: "RWR", play: "Shallow_Cross"},{positionId: "RWR", play: "Stop_and_Go"},{positionId: "RWR", play: "WR_Reverse_Pass-Wing_T"},{positionId: "RWR", play: "WR_Reverse_Pass-Wishbone"}];
+var currentPlayerPlayTilesIndex = 0;
+/***/
 function toggleMenu() {
     var menu = document.getElementById('menu');
     if (menu.style.visibility=="visible") {menu.style.visibility="hidden";} else {menu.style.visibility="visible";}
 }
 function togglePractice() {
     // Hide maker components
+    document.getElementById("nextButton").style.visibility="hidden";
     document.getElementById('buttonbar').style.visibility="hidden";
-    default_lineup();
+    document.getElementById('myCanvas').style.visibility="hidden";
+    document.getElementById('lineofscrimage').style.visibility="hidden";
+    toggleMute();
     toggleMenu();
+    // Present a practice item
+    displayPlayerPlayItem();
+    document.getElementById('practiceitem').style.visibility="visible";
+    document.getElementById('menu').style.visibility="hidden";
 }
 function toggleMaker() {
     // Hide maker components
+    document.getElementById("nextButton").style.visibility="hidden";
     document.getElementById('buttonbar').style.visibility="visible";
+    document.getElementById('myCanvas').style.visibility="visible";
+    document.getElementById('lineofscrimage').style.visibility="visible";
+    document.getElementById('practiceitem').style.visibility="hidden";
     default_lineup();
-    toggleMenu();
+    document.getElementById('menu').style.visibility="hidden";
+}
+function nextPlayerPlayTilesItem() {
+    currentPlayerPlayTilesIndex++;
+    if (currentPlayerPlayTilesIndex==playerPlayTiles.length) {currentPlayerPlayTilesIndex=0};
+}
+function displayPlayerPlayItem() {
+    var currentPlayerPlayTile = playerPlayTiles[currentPlayerPlayTilesIndex];
+    var positionId = currentPlayerPlayTile.positionId;
+    var positionName = lookupPositionName(positionId);
+    var playName = currentPlayerPlayTile.play;
+    var prompt = "What does the <b>" + positionName + "</b> do in <b>" + playName + "</b>?";
+    document.getElementById("practiceitemprompt").innerHTML=prompt;
+    var correctTileImage = "images/plays/" + positionId + "-" + playName + ".png";
+    var tileImageArray = ["","","",""];
+    var correctTilePosition = Math.floor(Math.random()*4);
+    //alert(playName); //temp
+    // Put the correct tile in place
+    var correctTileObjectId = "choiceimage" + correctTilePosition;
+    document.getElementById(correctTileObjectId).src=correctTileImage;
+    document.getElementById(correctTileObjectId).correct=true;
+    // Put random other playerPlay tiles in the other slots
+    for (i=0; i<4;i++) {
+        if (i!=correctTilePosition) {
+            var thisImageObjectId = "choiceimage" + i;
+            document.getElementById(thisImageObjectId).src=getOtherRandomPlayerPlayImage(positionId,playName);
+        }
+    }
+}
+function getOtherRandomPlayerPlayImage(positionId,play) {
+    var randomPlayerPlayImage = "";
+    // @TODO -- Rewrite -- This will go into an infiinte loop if there aren't at-least 5 plays for the player to practice
+    while (randomPlayerPlayImage=="") {
+        var r = Math.floor(Math.random()*playerPlayTiles.length);
+        if (playerPlayTiles[r].play!=play && playerPlayTiles[r].positionId) {
+            randomPlayerPlayImage=`images/plays/${positionId}-${playerPlayTiles[r].play}.png`
+        }
+    }
+    //alert(randomPlayerPlayImage);
+    return randomPlayerPlayImage;
+}
+function lookupPositionName(positionId) {
+    for (i=0; i<playerPositions.length;i++) {
+        if (playerPositions[i].id==positionId) {return playerPositions[i].name}
+    }
+}
+function checkAnswer(e) {
+    if (e.correct==true) {
+        document.getElementById("feedbackDiv").innerHTML="Yes!";
+        playAudioFeedback("correct");
+        //document.getElementById("feedbackImage").src="images/correctFeedback.png";
+    } else {
+        document.getElementById("feedbackDiv").innerHTML="That's not it.";
+        playAudioFeedback("incorrect");
+        //document.getElementById("feedbackImage").src="images/incorrectFeedback.png";
+    }
+    document.getElementById("feedbackDiv").style.visibility="visible";
+    const myTimeout = window.setTimeout(hideFeedback, 3000);
+}
+function hideFeedback() {
+    document.getElementById("feedbackDiv").style.visibility="hidden";
+    const myTimeout = window.setTimeout(showNextButton, 1000);
+}
+function showNextButton() {
+    document.getElementById("nextButton").style.visibility="visible";
+}
+function nextPracticeItem() {
+    nextPlayerPlayTilesItem();
+    displayPlayerPlayItem();
+    document.getElementById("nextButton").style.visibility="hidden";
+}
+function playAudioFeedback(audioClip) {
+    //@TODO - add audio feedback
+    var audioControl = document.getElementById(audioControl);
+    var filePath = "audio/"+audioClip+".mp3"
+    audio.src = filePath;
+    audio.play();
+}
+function toggleMute() {
+    // run on page load
+    var audio = document.getElementById('audio');
+    var muteButton = document.getElementById("muteButton");
+    if (audio.muted) {
+        muteButton.src="images/unmuted.png";
+        audio.muted=false;
+    } else {
+        muteButton.src="images/muted.png";
+        audio.muted=true;
+    }
+    audio.play(); // audio will load and then play
+    var userAgent = window.navigator.userAgent;
+    if (userAgent.includes("Safari") && !(userAgent.includes("Chrome"))) {
+        var alertText = "Audio feedback not supported on Safari browsers." + userAgent;
+        alert(alertText);
+    }
 }
 function drag_start(event) {
     var dm = document.getElementById('dragme');
