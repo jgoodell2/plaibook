@@ -27,7 +27,12 @@
                 <td id="tl" style="background-image: url('./images/tl.png'); width: 18px; height: 40px;"></td>
                 <td id="t" style="background-image: url('./images/t.png');vertical-align: middle;">
                     <img src="images/menubutton.png" onclick="toggleMenu()" alt="Menu button"><img src="images/plaibookcoachtm.png" alt="Plai Book Coach title">
-                    <select class="positionSelect"><option>Right Wide Receiver</option></select></option></select><img src="images/personicon.png" style="float: right;" alt="login and settings icon"></td>
+                    <select id="positionSelect"><option>Right Wide Receiver</option></select></option></select>
+                    <div id="topRightControls" style="float: right;">
+                        <img id="personIcon" src="images/personicon.png" alt="login and settings icon">
+                        <img id="muteButton" src="images/muted.png" onclick="toggleMute()"><!--User action control required for audio in Safari-->
+                    </div>
+                </td>
                 <td id="tr" style="background-image: url('./images/tr.png'); width: 18px;"></td>
             </tr>
             <tr id="middlerow">
@@ -51,7 +56,6 @@
     </div>
     <div id="feedbackDiv">-------</div>
     <div id="audioDiv">
-        <img id="muteButton" src="images/muted.png" onclick="toggleMute()"><!--User action control required for audio in Safari-->
         <audio id="audio" muted>
             <source src="audio/correct.mp3">
             Your browser does not support the audio tag.

@@ -79,18 +79,21 @@ div {font-family: Arial, Helvetica, sans-serif;font-size: medium;}
 	height: 80px;
 	text-align: center;
 	font-weight: bold;
-	font-size: larger;
+	font-size: xx-large;
 	color: darkblue;
 	background: rgba(255,255,255,0.66); 
 }
-
+#positionSelect {font-size: large;}
+#personIcon {
+    width: 40px;
+	height: 40px;	
+}
 #muteButton {
-    width: 24px;
-	height: 24px;
+    width: 40px;
+	height: 40px;
 	opacity: 0.5;
-	margin-left: 290px;
-	margin-top: 12px;
-	top: 0px;
+	margin-left: 12px;
+	float:right;
 }
 #nextButton {
 	position:  relative;
@@ -99,11 +102,12 @@ div {font-family: Arial, Helvetica, sans-serif;font-size: medium;}
 	width: 90%;
 	visibility: hidden;
 	margin-left: 12px;
-	text-align: center;
 	font-size: xx-large;
 }
 #practiceitemprompt {
 	margin-left: 12px;
+	text-align: center;
+	font-size: xx-large;
 }
 .choicetileimg {
 	width: 40%;
